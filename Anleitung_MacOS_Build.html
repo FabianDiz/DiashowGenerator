@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anleitung: Slideshow Generator für macOS erstellen</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --surface: #ffffff;
+    --accent: #5b4dd4;
+    --accent-light: #ede9ff;
+    --text: #1a1a2e;
+    --text-dim: #6b7280;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --border: #e5e7eb;
+    --code-bg: #1e1e2e;
+    --code-fg: #cdd6f4;
+    --step-size: 36px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .hero {
+    background: linear-gradient(135deg, #3b2fa0, #7c6af7);
+    color: white;
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .hero h1 { font-size: 2rem; margin-bottom: 8px; }
+  .hero p  { font-size: 1.1rem; opacity: 0.88; }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.82rem;
+    margin-top: 16px;
+    letter-spacing: 0.03em;
+  }
+  .container { max-width: 860px; margin: 0 auto; padding: 32px 24px 64px; }
+  h2 {
+    font-size: 1.4rem;
+    color: var(--accent);
+    margin: 40px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--accent-light);
+  }
+  h3 { font-size: 1.05rem; margin: 20px 0 6px; }
+  p  { margin: 8px 0; }
+  ul, ol { padding-left: 22px; margin: 8px 0; }
+  li { margin: 4px 0; }
+
+  /* Schritt-Karten */
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 24px 24px 72px;
+    margin: 20px 0;
+    position: relative;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .step-num {
+    position: absolute;
+    left: 20px;
+    top: 22px;
+    width: var(--step-size);
+    height: var(--step-size);
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .step h3 { margin-top: 0; font-size: 1.1rem; color: var(--text); }
+
+  /* Code-Blöcke */
+  .code-block {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 0.88rem;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.6;
+  }
+  .code-inline {
+    background: #ede9ff;
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+  /* Hinweis-Boxen */
+  .box {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    border-left: 4px solid;
+  }
+  .box.info    { background: var(--accent-light); border-color: var(--accent); }
+  .box.success { background: var(--success-bg);   border-color: var(--success); }
+  .box.warning { background: var(--warning-bg);   border-color: var(--warning); }
+  .box.danger  { background: var(--danger-bg);    border-color: var(--danger); }
+  .box strong  { display: block; margin-bottom: 4px; }
+
+  /* Screenshot-Platzhalter */
+  .screenshot {
+    background: #f0f0f0;
+    border: 2px dashed #c0c0c0;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+    color: var(--text-dim);
+    font-size: 0.88rem;
+    font-style: italic;
+  }
+
+  /* Checkliste */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    padding: 6px 0 6px 28px;
+    position: relative;
+  }
+  .checklist li::before {
+    content: "☐";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 1.1rem;
+  }
+
+  /* Trennlinie */
+  hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Nummerierter Pfad */
+  .path {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+  }
+  .path-item {
+    background: var(--accent-light);
+    color: var(--accent);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+  .path-arrow { color: var(--text-dim); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🎬 Slideshow Generator</h1>
+  <p>Schritt-für-Schritt-Anleitung: App für macOS erstellen</p>
+  <div class="badge">Für macOS · Ohne Programmierkenntnisse</div>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <h2>Überblick – Was passiert hier?</h2>
+
+  <p>
+    Diese Anleitung erklärt, wie man aus dem <strong>Diashow Generator</strong>
+    eine eigenständige macOS-App erstellt – eine Datei mit der Endung
+    <span class="code-inline">.app</span>, die man einfach per Doppelklick startet,
+    ohne dass Python oder andere Programme installiert sein müssen.
+  </p>
+
+  <div class="box info">
+    <strong>ℹ️ Wichtig vorab</strong>
+    Der Build-Prozess muss einmalig auf einem Mac durchgeführt werden.
+    Das fertige <span class="code-inline">SlideshowGenerator.app</span> läuft dann
+    auf jedem Mac und benötigt keine weitere Installation.
+  </div>
+
+  <div class="box warning">
+    <strong>⏱ Zeitaufwand</strong>
+    Ca. 30–45 Minuten beim ersten Mal (je nach Internetgeschwindigkeit).
+    Danach dauert ein erneuter Build nur noch ~5 Minuten.
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <h2>Voraussetzungen</h2>
+
+  <ul class="checklist">
+    <li>Ein Mac (iMac, MacBook, Mac Mini) mit macOS 11 oder neuer</li>
+    <li>Internetverbindung (nur für die Einrichtung nötig)</li>
+    <li>Ca. 1 GB freier Speicherplatz</li>
+    <li>Den Ordner <strong>„Diashow Generator"</strong> (dieser Ordner, in dem diese Anleitung liegt)</li>
+  </ul>
+
+  <div class="box info">
+    <strong>ℹ️ Apple Silicon oder Intel?</strong>
+    Die Anleitung funktioniert auf beiden Chip-Typen
+    (M1, M2, M3, M4 sowie ältere Intel-Macs) ohne Unterschied.
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <h2>Schritt-für-Schritt-Anleitung</h2>
+
+
+  <!-- SCHRITT 1 -->
+  <div class="step">
+    <div class="step-num">1</div>
+    <h3>Den Ordner auf den Mac kopieren</h3>
+    <p>
+      Kopiere den gesamten Ordner <strong>„Diashow Generator"</strong> auf den Mac,
+      z.B. auf den Schreibtisch oder in den Dokumente-Ordner.
+    </p>
+    <p>Das geht am einfachsten per USB-Stick, AirDrop oder OneDrive/iCloud.</p>
+    <div class="box success">
+      <strong>✓ Ziel</strong>
+      Der Ordner „Diashow Generator" liegt auf dem Mac und enthält die Dateien
+      <span class="code-inline">create_slideshow.py</span>,
+      <span class="code-inline">slideshow_gui.py</span>,
+      <span class="code-inline">requirements.txt</span> usw.
+    </div>
+  </div>
+
+
+  <!-- SCHRITT 2 -->
+  <div class="step">
+    <div class="step-num">2</div>
+    <h3>Python installieren</h3>
+    <p>
+      Python ist die Programmiersprache, die der Slideshow Generator verwendet.
+      Auf Macs ist oft eine veraltete Version vorinstalliert – wir brauchen Version 3.10 oder neuer.
+    </p>
+
+    <p><strong>So prüfen, ob Python schon installiert ist:</strong></p>
+    <ol>
+      <li>Öffne das <strong>Terminal</strong> (siehe Schritt 3, wie das geht)</li>
+      <li>Tippe folgendes ein und drücke <span class="code-inline">Enter</span>:</li>
+    </ol>
+    <div class="code-block">python3 --version</div>
+    <p>
+      Wenn eine Zahl wie <span class="code-inline">Python 3.11.4</span> erscheint
+      und die Zahl nach dem Punkt ≥ 10 ist – super, Python ist bereits installiert,
+      weiter zu Schritt 3.
+    </p>
+    <p>
+      Erscheint eine Fehlermeldung oder eine Zahl kleiner als 3.10:
+    </p>
+
+    <p><strong>Python herunterladen und installieren:</strong></p>
+    <ol>
+      <li>
+        Öffne den Browser und gehe auf
+        <strong>python.org/downloads</strong>
+      </li>
+      <li>
+        Klicke auf den großen gelben Button
+        <span class="code-inline">Download Python 3.x.x</span>
+        (die neueste Version wird automatisch vorgeschlagen)
+      </li>
+      <li>
+        Die heruntergeladene Datei heißt z.B.
+        <span class="code-inline">python-3.13.0-macos11.pkg</span>
+      </li>
+      <li>Doppelklick auf die Datei → dem Installations-Assistenten folgen (immer „Weiter" klicken)</li>
+      <li>Am Ende auf <strong>„Zertifikate installieren"</strong> klicken
+          (ein Doppelklick auf die Datei
+          <span class="code-inline">Install Certificates.command</span>
+          im Python-Ordner unter Programme)</li>
+    </ol>
+
+    <div class="box success">
+      <strong>✓ Prüfen</strong>
+      Terminal öffnen → <span class="code-inline">python3 --version</span> eintippen →
+      es sollte jetzt <span class="code-inline">Python 3.10</span> oder höher erscheinen.
+    </div>
+  </div>
+
+
+  <!-- SCHRITT 3 -->
+  <div class="step">
+    <div class="step-num">3</div>
+    <h3>Das Terminal öffnen</h3>
+    <p>
+      Das Terminal ist das „Befehlsfenster" des Macs – ähnlich wie die
+      Eingabeaufforderung (cmd) unter Windows. Hier gibt man Befehle ein.
+    </p>
+
+    <p><strong>Methode A – Spotlight (empfohlen):</strong></p>
+    <ol>
+      <li>Drücke gleichzeitig <span class="code-inline">⌘ Command</span> + <span class="code-inline">Leertaste</span></li>
+      <li>Im erscheinenden Suchfeld <strong>Terminal</strong> eintippen</li>
+      <li>Auf „Terminal" in den Ergebnissen doppelklicken</li>
+    </ol>
+
+    <p><strong>Methode B – Finder:</strong></p>
+    <ol>
+      <li>Finder öffnen</li>
+      <li>
+        <div class="path">
+          <span class="path-item">Programme</span>
+          <span class="path-arrow">→</span>
+          <span class="path-item">Dienstprogramme</span>
+          <span class="path-arrow">→</span>
+          <span class="path-item">Terminal</span>
+        </div>
+      </li>
+      <li>Doppelklick auf „Terminal"</li>
+    </ol>
+
+    <p>
+      Das Terminal sieht wie ein schwarzes oder weißes Fenster mit Text aus.
+      Am Ende der Zeile blinkt ein Cursor – das ist normal.
+    </p>
+  </div>
+
+
+  <!-- SCHRITT 4 -->
+  <div class="step">
+    <div class="step-num">4</div>
+    <h3>In den „Diashow Generator"-Ordner wechseln</h3>
+    <p>
+      Damit alle folgenden Befehle im richtigen Ordner ausgeführt werden,
+      muss man dem Terminal zuerst sagen, wo der Ordner liegt.
+    </p>
+
+    <p><strong>Der einfachste Weg:</strong></p>
+    <ol>
+      <li>
+        Tippe im Terminal <span class="code-inline">cd </span>
+        (mit einem Leerzeichen danach, aber noch <em>nicht</em> Enter drücken)
+      </li>
+      <li>
+        Öffne den Finder und navigiere zum Ordner <strong>„Diashow Generator"</strong>
+      </li>
+      <li>
+        Ziehe den Ordner „Diashow Generator" mit der Maus
+        <strong>direkt ins Terminal-Fenster</strong>
+      </li>
+      <li>
+        Der Pfad wird automatisch eingetragen,
+        z.B. <span class="code-inline">cd /Users/anna/Desktop/Diashow\ Generator</span>
+      </li>
+      <li>Drücke <span class="code-inline">Enter</span></li>
+    </ol>
+
+    <div class="box info">
+      <strong>ℹ️ Alternative ohne Drag &amp; Drop:</strong>
+      Liegt der Ordner auf dem Schreibtisch, kann man direkt eintippen:<br>
+      <br>
+      <span class="code-inline">cd ~/Desktop/Diashow\ Generator</span>
+      <br><br>
+      Das <span class="code-inline">~</span> steht für den persönlichen Ordner,
+      <span class="code-inline">\</span> vor dem Leerzeichen im Ordnernamen ist wichtig.
+    </div>
+
+    <div class="box success">
+      <strong>✓ Prüfen</strong>
+      Nach dem Drücken von Enter sollte der Pfad im Terminal sichtbar sein,
+      z.B. <span class="code-inline">anna@MacBook Diashow Generator %</span>.
+      Tippe dann <span class="code-inline">ls</span> und Enter – es sollten
+      Dateien wie <span class="code-inline">create_slideshow.py</span> und
+      <span class="code-inline">requirements.txt</span> erscheinen.
+    </div>
+  </div>
+
+
+  <!-- SCHRITT 5 -->
+  <div class="step">
+    <div class="step-num">5</div>
+    <h3>Virtuelle Python-Umgebung erstellen</h3>
+    <p>
+      Eine „virtuelle Umgebung" ist ein isolierter Bereich, in dem alle
+      benötigten Zusatzprogramme installiert werden – ohne das restliche System
+      zu verändern. Das ist wie ein eigener Ordner nur für dieses Projekt.
+    </p>
+
+    <div class="box warning">
+      <strong>⚠️ Wichtig</strong>
+      Die <span class="code-inline">.venv</span>-Umgebung aus Windows funktioniert
+      auf dem Mac nicht. Wir erstellen eine neue, macOS-kompatible Umgebung.
+    </div>
+
+    <p>Tippe folgenden Befehl ein und drücke <span class="code-inline">Enter</span>:</p>
+    <div class="code-block">python3 -m venv .venv-mac</div>
+
+    <p>
+      Es passiert kurz etwas (keine Ausgabe ist normal),
+      danach erscheint wieder der Cursor.
+      Im Ordner wurde jetzt ein Unterordner
+      <span class="code-inline">.venv-mac</span> angelegt.
+    </p>
+
+    <p>Aktiviere die Umgebung mit diesem Befehl:</p>
+    <div class="code-block">source .venv-mac/bin/activate</div>
+
+    <div class="box success">
+      <strong>✓ Prüfen</strong>
+      Am Anfang der Terminal-Zeile erscheint jetzt
+      <span class="code-inline">(.venv-mac)</span> – die Umgebung ist aktiv.
+      Beispiel: <span class="code-inline">(.venv-mac) anna@MacBook Diashow Generator %</span>
+    </div>
+
+    <div class="box info">
+      <strong>ℹ️ Hinweis</strong>
+      Bei jedem neuen Terminal-Fenster muss die Umgebung erneut aktiviert werden
+      (wieder <span class="code-inline">source .venv-mac/bin/activate</span> eingeben).
+      Solange <span class="code-inline">(.venv-mac)</span> sichtbar ist, ist sie aktiv.
+    </div>
+  </div>
+
+
+  <!-- SCHRITT 6 -->
+  <div class="step">
+    <div class="step-num">6</div>
+    <h3>Benötigte Programme installieren</h3>
+    <p>
+      Jetzt werden alle Zusatzprogramme (sogenannte „Pakete") installiert,
+      die der Slideshow Generator benötigt. Die Liste steht in der Datei
+      <span class="code-inline">requirements.txt</span>.
+    </p>
+
+    <p>Tippe ein und drücke <span class="code-inline">Enter</span>:</p>
+    <div class="code-block">pip install -r requirements.txt</div>
+
+    <p>
+      Jetzt werden automatisch mehrere Pakete heruntergeladen und installiert.
+      Das kann 2–10 Minuten dauern, je nach Internetgeschwindigkeit.
+      Es erscheinen viele Zeilen mit Text – das ist normal.
+    </p>
+
+    <div class="box success">
+      <strong>✓ Prüfen</strong>
+      Am Ende erscheint eine Zeile wie
+      <span class="code-inline">Successfully installed imageio ...</span>
+      ohne rot hinterlegte Fehlermeldungen.
+    </div>
+
+    <div class="box danger">
+      <strong>🚨 Falls ein Fehler erscheint</strong>
+      Erscheint etwas wie <span class="code-inline">ERROR: Could not build wheels</span>
+      oder <span class="code-inline">command not found</span>,
+      prüfe ob <span class="code-inline">(.venv-mac)</span> am Zeilenanfang steht
+      (Schritt 5 nochmals durchführen). Tritt der Fehler weiter auf,
+      am Ende dieser Anleitung gibt es Hilfe-Hinweise.
+    </div>
+  </div>
+
+
+  <!-- SCHRITT 7 -->
+  <div class="step">
+    <div class="step-num">7</div>
+    <h3>PyInstaller installieren</h3>
+    <p>
+      PyInstaller ist das Werkzeug, das den Python-Code in eine
+      eigenständige App verwandelt.
+    </p>
+
+    <p>Tippe ein und drücke <span class="code-inline">Enter</span>:</p>
+    <div class="code-block">pip install pyinstaller</div>
+
+    <p>Die Installation dauert ca. 1–2 Minuten.</p>
+
+    <div class="box success">
+      <strong>✓ Prüfen</strong>
+      Am Ende erscheint
+      <span class="code-inline">Successfully installed pyinstaller-...</span>
+    </div>
+  </div>
+
+
+  <!-- SCHRITT 8 -->
+  <div class="step">
+    <div class="step-num">8</div>
+    <h3>Die App erstellen (Build starten)</h3>
+    <p>Jetzt wird die eigentliche App gebaut. Tippe ein und drücke <span class="code-inline">Enter</span>:</p>
+    <div class="code-block">python -m PyInstaller slideshow_generator.spec</div>
+
+    <p>
+      Jetzt läuft der Build-Prozess. Es erscheinen viele Zeilen mit Text –
+      das ist normal und zeigt den Fortschritt.
+      Der Prozess dauert <strong>ca. 3–8 Minuten</strong>.
+    </p>
+
+    <p>Warte, bis der Cursor wieder erscheint und keine neuen Zeilen mehr kommen.</p>
+
+    <div class="box success">
+      <strong>✓ Prüfen – Erfolg</strong>
+      Am Ende erscheint eine Zeile wie:<br>
+      <span class="code-inline">INFO: Build complete! The results are available in: .../dist</span>
+    </div>
+
+    <div class="box danger">
+      <strong>🚨 Falls Fehler erscheinen</strong>
+      Rot hinterlegte <span class="code-inline">ERROR</span>-Zeilen bedeuten,
+      dass etwas schiefgelaufen ist. Häufigste Ursache:
+      die virtuelle Umgebung ist nicht aktiv.
+      Führe nochmals
+      <span class="code-inline">source .venv-mac/bin/activate</span> aus
+      und wiederhole diesen Schritt.
+    </div>
+  </div>
+
+
+  <!-- SCHRITT 9 -->
+  <div class="step">
+    <div class="step-num">9</div>
+    <h3>Die fertige App finden und starten</h3>
+    <p>
+      Nach erfolgreichem Build liegt die App im Unterordner
+      <span class="code-inline">dist</span>:
+    </p>
+
+    <div class="path" style="margin: 12px 0;">
+      <span class="path-item">Diashow Generator</span>
+      <span class="path-arrow">→</span>
+      <span class="path-item">dist</span>
+      <span class="path-arrow">→</span>
+      <span class="path-item">SlideshowGenerator.app</span>
+    </div>
+
+    <p>
+      Öffne diesen Ordner im Finder: Tippe im Terminal
+    </p>
+    <div class="code-block">open dist</div>
+
+    <p>
+      Der Finder öffnet sich und zeigt die Datei
+      <span class="code-inline">SlideshowGenerator.app</span>.
+    </p>
+
+    <p>
+      Diese <span class="code-inline">.app</span>-Datei kann man:
+    </p>
+    <ul>
+      <li>in den <strong>Programme-Ordner</strong> ziehen (für dauerhaften Zugriff)</li>
+      <li>ins <strong>Dock</strong> ziehen</li>
+      <li>direkt per Doppelklick starten</li>
+    </ul>
+  </div>
+
+
+  <!-- SCHRITT 10 -->
+  <div class="step">
+    <div class="step-num">10</div>
+    <h3>macOS-Sicherheitswarnung umgehen (einmalig)</h3>
+    <p>
+      Beim ersten Start erscheint möglicherweise eine Warnung:
+      <em>„SlideshowGenerator.app kann nicht geöffnet werden, weil es von einem
+      nicht verifizierten Entwickler stammt."</em>
+    </p>
+    <p>Das ist normal für selbst erstellte Apps. So umgeht man die Warnung:</p>
+
+    <ol>
+      <li>
+        <strong>Rechtsklick</strong> (oder <span class="code-inline">Control</span> + Klick)
+        auf <span class="code-inline">SlideshowGenerator.app</span>
+      </li>
+      <li>Im Menü <strong>„Öffnen"</strong> auswählen (nicht Doppelklick!)</li>
+      <li>Im Warndialog auf <strong>„Öffnen"</strong> klicken</li>
+    </ol>
+
+    <div class="box info">
+      <strong>ℹ️ Nur einmalig nötig</strong>
+      Nach dem ersten Öffnen per Rechtsklick → „Öffnen" kann die App danach
+      normal per Doppelklick gestartet werden.
+    </div>
+
+    <p><strong>Alternative (falls Rechtsklick nicht klappt):</strong></p>
+    <ol>
+      <li>Apple-Menü → <strong>Systemeinstellungen</strong></li>
+      <li><strong>Datenschutz &amp; Sicherheit</strong></li>
+      <li>Ganz unten erscheint ein Hinweis zu SlideshowGenerator</li>
+      <li>Auf <strong>„Trotzdem öffnen"</strong> klicken</li>
+    </ol>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <h2>Die App weitergeben</h2>
+
+  <p>
+    Die fertige <span class="code-inline">SlideshowGenerator.app</span>
+    kann an andere Mac-Nutzer weitergegeben werden – sie benötigen kein Python
+    oder andere Programme.
+  </p>
+  <ul>
+    <li>Per AirDrop, USB-Stick, iCloud oder E-Mail verschicken</li>
+    <li>Empfänger müssen ebenfalls einmalig per Rechtsklick → „Öffnen" starten</li>
+    <li>Funktioniert auf macOS 11 (Big Sur) und neuer</li>
+    <li>Funktioniert sowohl auf Intel- als auch Apple Silicon-Macs
+        (sofern der Build auf demselben Chip-Typ durchgeführt wurde)
+    </li>
+  </ul>
+
+  <div class="box warning">
+    <strong>⚠️ Intel vs. Apple Silicon</strong>
+    Eine auf einem M1/M2/M3-Mac gebaute App läuft möglicherweise nicht auf einem
+    alten Intel-Mac (und umgekehrt). Für maximale Kompatibilität auf einem
+    Intel-Mac bauen, wenn die Ziel-Nutzer verschiedene Macs haben.
+    Oder den Build auf beiden Typen durchführen.
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <h2>Schnellübersicht aller Befehle</h2>
+
+  <p>Alles auf einen Blick (Terminal-Befehle in der richtigen Reihenfolge):</p>
+  <div class="code-block"># 1. In den Ordner wechseln (Pfad anpassen!)
+cd ~/Desktop/Diashow\ Generator
+
+# 2. Virtuelle Umgebung erstellen (nur einmalig)
+python3 -m venv .venv-mac
+
+# 3. Virtuelle Umgebung aktivieren (bei jedem neuen Terminal-Fenster)
+source .venv-mac/bin/activate
+
+# 4. Pakete installieren (nur einmalig)
+pip install -r requirements.txt
+
+# 5. PyInstaller installieren (nur einmalig)
+pip install pyinstaller
+
+# 6. App bauen
+python -m PyInstaller slideshow_generator.spec
+
+# 7. Ergebnis-Ordner öffnen
+open dist</div>
+
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <h2>Häufige Probleme und Lösungen</h2>
+
+  <h3>„python3: command not found"</h3>
+  <p>
+    Python ist nicht installiert oder nicht gefunden.
+    Zurück zu <strong>Schritt 2</strong> und Python von python.org installieren.
+  </p>
+
+  <h3>„pip: command not found"</h3>
+  <p>
+    Die virtuelle Umgebung ist nicht aktiv.
+    <span class="code-inline">source .venv-mac/bin/activate</span> erneut ausführen
+    und darauf achten, dass <span class="code-inline">(.venv-mac)</span>
+    am Zeilenanfang erscheint.
+  </p>
+
+  <h3>„No such file or directory: slideshow_generator.spec"</h3>
+  <p>
+    Das Terminal ist nicht im richtigen Ordner. <strong>Schritt 4</strong> wiederholen –
+    mit <span class="code-inline">ls</span> prüfen, ob
+    <span class="code-inline">slideshow_generator.spec</span> sichtbar ist.
+  </p>
+
+  <h3>Die App öffnet sich, aber es passiert nichts / sie stürzt sofort ab</h3>
+  <p>
+    Starte die App einmal direkt aus dem Terminal, um Fehlermeldungen zu sehen:
+  </p>
+  <div class="code-block">./dist/SlideshowGenerator.app/Contents/MacOS/SlideshowGenerator</div>
+  <p>
+    Die angezeigte Fehlermeldung gibt Hinweis auf das Problem.
+  </p>
+
+  <h3>„SlideshowGenerator.app ist beschädigt"</h3>
+  <p>
+    macOS Gatekeeper blockiert die App. Im Terminal ausführen:
+  </p>
+  <div class="code-block">xattr -dr com.apple.quarantine dist/SlideshowGenerator.app</div>
+  <p>Danach sollte die App per Doppelklick startbar sein.</p>
+
+  <h3>imageio-ffmpeg Fehler / ffmpeg nicht gefunden</h3>
+  <p>
+    Das ffmpeg-Binary ist möglicherweise nicht korrekt eingebunden.
+    Führe folgendes aus, um ffmpeg manuell für die aktuelle Plattform herunterzuladen:
+  </p>
+  <div class="code-block">python3 -c "import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())"</div>
+  <p>
+    Erscheint ein gültiger Pfad, ist ffmpeg vorhanden. Den Build dann erneut starten.
+  </p>
+
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <hr>
+  <div class="footer">
+    Slideshow Generator · Anleitung erstellt mit Claude Code · Version 1.0
+  </div>
+
+</div>
+</body>
+</html>
