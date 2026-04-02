@@ -98,12 +98,12 @@ python slideshow_gui.py
 - `numpy>=1.24`
 - `Pillow>=9.0`
 
+## 📄 Lizenz
+
+Dieses Projekt ist unter der MIT-Lizenz lizenziert. Siehe [LICENSE](LICENSE) für Details.
+
 ## 💡 Hinweise
 
 - `ffmpeg` wird über `imageio-ffmpeg` automatisch verwendet.
 - Falls die Audio-Länge die Video-Dauer unterschreitet, wird bei `--music-loop` aufgefüllt.
 - Bei fehlenden Bildern oder Audiodateien gibt das Skript eine Fehlermeldung.
-
-## 📄 Lizenz
-
-Keine Lizenzdatei vorhanden. Bitte nach eigenem Bedarf ergänzen.
